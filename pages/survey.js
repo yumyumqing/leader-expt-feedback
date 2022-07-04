@@ -1,14 +1,15 @@
-import Head from "next/head";
-import Image from "next/image";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import React from "react";
 
-import { Container, Card, Row, Text, Spacer } from "@nextui-org/react";
-
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DesktopDatePicker } from "@mui/x-date-pickers/DesktopDatePicker";
-import { TextField } from "@mui/material";
+import {
+  Container,
+  Dropdown,
+  Textarea,
+  Text,
+  Button,
+  Spacer,
+  useInput,
+} from "@nextui-org/react";
 
 export default function Survey() {
   // Get userID from query data
@@ -16,33 +17,121 @@ export default function Survey() {
   const data = router.query;
   console.log(data);
 
-  // For date of birth picker
-  const [dob, setDob] = useState();
+  // For select Year of Birth
+  const [selected, setSelected] = React.useState(new Set());
+  const selectedValue = React.useMemo(
+    () => Array.from(selected).join(", ").replaceAll("_", " "),
+    [selected]
+  );
+  const curYearMinus = (num) => {
+    return new Date().getFullYear() - num;
+  };
+  const allYears = Array.from(Array(120).keys()).map(curYearMinus);
 
-  const handleDobChange = (newDob) => {
-    setDob(newDob);
+  // Get user employment status input and validate if it's empty
+  const { value: employStatus, bindings: esBindings } = useInput("");
+  const { value: feedback, bindings: fbBindings } = useInput("");
+
+  const isNonEmpty = (value) => {
+    if (!value || value === "") {
+      return false;
+    }
+    return true;
+  };
+
+  // Only redirect to api/record page if it's not empty
+  const recordFeedback = async (event) => {
+    // Stop the form from submitting and refreshing the page.
+    event.preventDefault();
+    // console.log(selectedValue);
+    // console.log(employStatus);
+    // console.log(feedback);
+
+    if (
+      isNonEmpty(selectedValue) &&
+      isNonEmpty(employStatus) &&
+      isNonEmpty(feedback)
+    ) {
+      const res = await fetch("/api/record", {
+        body: JSON.stringify({
+          userID: data.userID,
+          yearOfBirth: selectedValue,
+          employStatus: employStatus,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+      const result = await res.json();
+      alert(`Is this your full name: ${result.name}`);
+    }
   };
 
   return (
     <Container sm>
       <Spacer y={2} />
-      <h2>Questions</h2>
-      <h3>User: {data.userID}</h3>
-      <Spacer y={1} />
-      <h4>What is your date of birth?</h4>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <DesktopDatePicker
-          inputFormat="MM/dd/yyyy"
-          value={dob}
-          onChange={handleDobChange}
-          renderInput={(params) => <TextField {...params} />}
+      <h2>Questions for:</h2>
+      <Text h4 color="primary">
+        {data.userID}
+      </Text>
+      <Spacer y={2} />
+      <form onSubmit={recordFeedback}>
+        <h4>What is your year of birth?</h4>
+        <Dropdown>
+          <Dropdown.Button flat color="default" css={{ tt: "capitalize" }}>
+            {selectedValue}
+          </Dropdown.Button>
+          <Dropdown.Menu
+            color="default"
+            disallowEmptySelection
+            selectionMode="single"
+            selectedKeys={selected}
+            onSelectionChange={setSelected}
+          >
+            {allYears.map((year) => {
+              return (
+                <Dropdown.Item key={year.toString()}>
+                  {year.toString()}
+                </Dropdown.Item>
+              );
+            })}
+          </Dropdown.Menu>
+        </Dropdown>
+
+        <Spacer y={1} />
+        <h4>What is your employment status?</h4>
+        <Textarea
+          {...esBindings}
+          bordered
+          aria-label="employStatus"
+          width="600px"
+          placeholder="Your employment status"
         />
-      </LocalizationProvider>
-      <Spacer y={1} />
-      <form action="/survey" method="post">
-        <input type="text" id="first" name="first" />
-        <input type="text" id="last" name="last" />
-        <button type="submit">Submit</button>
+
+        <Spacer y={1} />
+        <h4>What is your feedback on the experiment UI?</h4>
+        <Textarea
+          {...fbBindings}
+          bordered
+          aria-label="feedback"
+          width="600px"
+          placeholder="Your experiment feedback"
+        />
+
+        <Spacer y={3} />
+        <Button
+          type="submit"
+          disabled={
+            !(
+              isNonEmpty(selectedValue) &&
+              isNonEmpty(employStatus) &&
+              isNonEmpty(feedback)
+            )
+          }
+        >
+          Submit
+        </Button>
       </form>
     </Container>
   );
