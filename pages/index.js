@@ -40,7 +40,10 @@ export default function Home() {
     event.preventDefault();
 
     if (validateUserID(value)) {
-      router.push("/survey");
+      router.push({
+        pathname: "/survey",
+        query: { userID: value },
+      });
     }
   };
 
