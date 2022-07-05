@@ -47,6 +47,7 @@ string | feedback | feedback from the participants
 * There can be multiple feedback belonging to the same user ID in the DB.
 * No limit to the minimum or maximum length of the feedback. The max length would be the hardware limit. 
 * No verification is made whether the user ID is valid or not.
+* The project is made with the assumption that it's for the standalone demo purposes. Therefore, we avoided any cloud engineering solutions. With that being said, the db used in the project is a lightweight, local json db.
 
 ## Resources
 * https://nextjs.org/learn/basics/create-nextjs-app
