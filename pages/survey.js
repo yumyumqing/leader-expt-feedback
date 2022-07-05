@@ -52,19 +52,19 @@ export default function Survey() {
       isNonEmpty(employStatus) &&
       isNonEmpty(feedback)
     ) {
-      const res = await fetch("/api/record", {
-        body: JSON.stringify({
-          userID: data.userID,
-          yearOfBirth: selectedValue,
-          employStatus: employStatus,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-      });
-      const result = await res.json();
-      alert(`Is this your full name: ${result.name}`);
+
+    await axios.post('http://localhost:3000/api/feedback', {
+      userID: data.userID,
+      yearOfBirth: selectedValue,
+      employStatus: employStatus,
+    }).then(response => {
+      console.log(response)
+    })
+    .catch(error => {
+      console.log(error)
+    });
+      // const result = await res.json();
+      // alert(`Is this your full name: ${result.name}`);
     }
   };
 
