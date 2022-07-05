@@ -36,9 +36,7 @@ export default function Home() {
   // Only redirect to survey page if it's valid User ID
   const router = useRouter();
 
-  const startSurvey = (event) => {
-    event.preventDefault();
-
+  const startSurvey = () => {
     if (validateUserID(value)) {
       router.push({
         pathname: "/survey",

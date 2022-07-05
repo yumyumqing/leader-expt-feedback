@@ -39,7 +39,7 @@ export default function Survey() {
     return true;
   };
 
-  // Only redirect to api/record page if it's not empty
+  // Only redirect to api/feedback page if it's not empty
   const recordFeedback = async (event) => {
     // Stop the form from submitting and refreshing the page.
     event.preventDefault();
@@ -47,24 +47,34 @@ export default function Survey() {
     // console.log(employStatus);
     // console.log(feedback);
 
+    // Send request to API: /api/feedback
     if (
       isNonEmpty(selectedValue) &&
       isNonEmpty(employStatus) &&
       isNonEmpty(feedback)
     ) {
+      const res = await fetch("/api/feedback", {
+        body: JSON.stringify({
+          userID: data.userID,
+          yearOfBirth: selectedValue,
+          employStatus: employStatus,
+          feedback: feedback,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+      });
+      await res.json();
 
-    await axios.post('http://localhost:3000/api/feedback', {
-      userID: data.userID,
-      yearOfBirth: selectedValue,
-      employStatus: employStatus,
-    }).then(response => {
-      console.log(response)
-    })
-    .catch(error => {
-      console.log(error)
-    });
-      // const result = await res.json();
-      // alert(`Is this your full name: ${result.name}`);
+      // If response is ok, redirect to thank you page
+      console.log(res.status);
+      if (res.status == 200) {
+        console.log(res.statusText);
+        router.push({
+          pathname: "/finish",
+        });
+      }
     }
   };
 
