@@ -6,20 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cypress": "cypress open",
+    "cypress:headless": "cypress run",
+    "e2e": "start-server-and-test start http://localhost:3000 cypress",
+    "e2e:headless": "start-server-and-test start http://localhost:3000 cypress:headless"
   },
   "dependencies": {
     "@nextui-org/react": "^1.0.0-beta.9",
-    "axios": "^0.27.2",
     "lowdb": "^3.0.0",
-    "mongoose": "^6.4.2",
     "next": "12.2.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "start-server-and-test": "^1.14.0"
   },
   "devDependencies": {
     "@types/node": "^18.0.1",
     "@types/react": "^18.0.14",
+    "cypress": "^10.3.0",
     "eslint": "8.19.0",
     "eslint-config-next": "12.2.0"
   }
